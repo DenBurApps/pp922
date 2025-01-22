@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using AddTask;
+using EditTask;
+using OpenTask;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -25,6 +27,8 @@ namespace TaskListScreen
         [SerializeField] private GameObject _emptySearch;
         [SerializeField] private Button _addButton, _settingsButton;
         [SerializeField] private AddTaskScreen _addTaskScreen;
+        [SerializeField] private OpenTaskScreen _openTaskScreen;
+        [SerializeField] private EditTaskScreen _editTaskScreen;
 
         private ScreenVisabilityHandler _screenVisabilityHandler;
         private PriorityType _currentPriority;
@@ -49,6 +53,16 @@ namespace TaskListScreen
 
             _addTaskScreen.DataAdded += AddTask;
             _addTaskScreen.TaskListClicked += _screenVisabilityHandler.EnableScreen;
+
+            _openTaskScreen.BackClicked += _screenVisabilityHandler.EnableScreen;
+
+            _editTaskScreen.DataEdited += UpdateElements;
+            _editTaskScreen.DataDeleted += DeleteElement;
+
+            foreach (var plane in _taskPlanes)
+            {
+                plane.Opened += OnOpenTaskClicked;
+            }
         }
 
         private void OnDisable()
@@ -64,6 +78,16 @@ namespace TaskListScreen
 
             _addTaskScreen.DataAdded -= AddTask;
             _addTaskScreen.TaskListClicked -= _screenVisabilityHandler.EnableScreen;
+            
+            _openTaskScreen.BackClicked -= _screenVisabilityHandler.EnableScreen;
+            
+            _editTaskScreen.DataEdited -= UpdateElements;
+            _editTaskScreen.DataDeleted -= DeleteElement;
+            
+            foreach (var plane in _taskPlanes)
+            {
+                plane.Opened -= OnOpenTaskClicked;
+            }
         }
 
         private void Start()
@@ -76,6 +100,18 @@ namespace TaskListScreen
             _emptySearch.SetActive(false);
         }
 
+        private void UpdateElements()
+        {
+            _screenVisabilityHandler.EnableScreen();
+            FilterAndDisplayPlanes();
+        }
+
+        private void DeleteElement(TaskPlane taskPlane)
+        {
+            _taskPlanes.Find(plane => plane == taskPlane).DeleteData();
+            _screenVisabilityHandler.EnableScreen();
+        }
+        
         private void UpdateType(PriorityType type)
         {
             _currentPriority = type;
@@ -201,5 +237,10 @@ namespace TaskListScreen
             _screenVisabilityHandler.DisableScreen();
         }
 
+        private void OnOpenTaskClicked(TaskPlane taskPlane)
+        {
+            _openTaskScreen.EnableScreen(taskPlane);
+            _screenVisabilityHandler.DisableScreen();
+        }
     }
 }

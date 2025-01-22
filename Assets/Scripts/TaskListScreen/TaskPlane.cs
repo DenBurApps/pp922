@@ -10,7 +10,7 @@ namespace TaskListScreen
         private const string LowPriorityText = "Low";
         private const string MediumPriorityText = "Medium";
         private const string HighPriorityText = "High";
-        
+
         [SerializeField] private Color _lowPriorityColor;
         [SerializeField] private Color _mediumPriorityColor;
         [SerializeField] private Color _highPriorityColor;
@@ -21,8 +21,8 @@ namespace TaskListScreen
         [SerializeField] private Button _openButton;
         [SerializeField] private Image _completeImage;
 
-        public event Action<TaskPlane> Opened;  
-        
+        public event Action<TaskPlane> Opened;
+
         public TaskData TaskData { get; private set; }
         public bool IsActive { get; private set; }
 
@@ -39,12 +39,30 @@ namespace TaskListScreen
         public void EnablePlane(TaskData data)
         {
             TaskData = data ?? throw new ArgumentNullException(nameof(data));
-            
+
             gameObject.SetActive(true);
             IsActive = true;
             UpdateUIText();
 
-            _completeImage.gameObject.SetActive(TaskData.IsComplete);
+            if (_completeImage != null)
+                _completeImage.gameObject.SetActive(TaskData.IsComplete);
+        }
+
+        public void UpdateData(TaskData data)
+        {
+            TaskData = data ?? throw new ArgumentNullException(nameof(data));
+
+            UpdateUIText();
+
+            if (_completeImage != null)
+                _completeImage.gameObject.SetActive(TaskData.IsComplete);
+        }
+
+        public void DeleteData()
+        {
+            TaskData = null;
+            gameObject.SetActive(false);
+            IsActive = false;
         }
 
         public void Enable()
@@ -66,10 +84,18 @@ namespace TaskListScreen
             SetPriority();
             DisplayCurrentDateTime(TaskData.Date);
         }
-        
+
         public void DisplayCurrentDateTime(DateTime currentDateTime)
         {
             _dateText.text = currentDateTime.ToString("dd.MM.yyyy, HH:mm");
+        }
+
+        public void SetCompleteStatus(bool status)
+        {
+            TaskData.IsComplete = status;
+
+            if (_completeImage != null)
+                _completeImage.gameObject.SetActive(status);
         }
 
         private void SetPriority()
@@ -79,7 +105,7 @@ namespace TaskListScreen
                 _priorityText.text = LowPriorityText;
                 _priorityText.color = _lowPriorityColor;
             }
-            else if(TaskData.PriorityType == PriorityType.Medium)
+            else if (TaskData.PriorityType == PriorityType.Medium)
             {
                 _priorityText.text = MediumPriorityText;
                 _priorityText.color = _mediumPriorityColor;

@@ -1,13 +1,15 @@
 using System;
+using AddTask;
+using OpenTask;
 using TaskListScreen;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace AddTask
+namespace EditTask
 {
     [RequireComponent(typeof(ScreenVisabilityHandler))]
-    public class AddTaskScreen : MonoBehaviour
+    public class EditTaskScreen : MonoBehaviour
     {
         [SerializeField] private Color _selectedButtonColor;
         [SerializeField] private Color _defaultButtonColor;
@@ -21,24 +23,27 @@ namespace AddTask
         [SerializeField] private Button _low, _medium, _high;
         [SerializeField] private TMP_Text _lowText, _mediumText, _highText;
         [SerializeField] private TMP_InputField _commentInput;
-        [SerializeField] private Button _addTaskButton;
-        [SerializeField] private Button _taskListButton, _settingsButton;
-
+        [SerializeField] private Button _saveTask;
+        [SerializeField] private DeleteConfirmScreen _deleteConfirmScreen;
+        [SerializeField] private Button _deleteButton;
+        [SerializeField] private OpenTaskScreen _openTaskScreen;
+        
         private PriorityType _currentType;
         private ScreenVisabilityHandler _screenVisabilityHandler;
+        private TaskPlane _currentPlane;
         
-        public event Action<TaskData> DataAdded;
-        public event Action TaskListClicked;
-        public event Action SettingsClicked;
-
+        public event Action DataEdited;
+        public event Action<TaskPlane> DataDeleted;
+        
         private void Awake()
         {
             _screenVisabilityHandler = GetComponent<ScreenVisabilityHandler>();
         }
-
+        
         private void OnEnable()
         {
-            _addTaskButton.onClick.AddListener(AddNewTask);
+            _saveTask.onClick.AddListener(SaveTask);
+            _deleteConfirmScreen.YesClicked += OnConfirmDeleteClicked;
 
             _low.onClick.AddListener(OnLowPriorityClicked);
             _medium.onClick.AddListener(OnMediumPriorityClicked);
@@ -46,38 +51,54 @@ namespace AddTask
 
             _nameInput.onValueChanged.AddListener((arg0) => ToggleAddTaskButton());
             _categoryInput.onValueChanged.AddListener((arg0) => ToggleAddTaskButton());
+            
+            _deleteButton.onClick.AddListener(OnDeleteButtonClicked);
 
-            _taskListButton.onClick.AddListener(OnTaskListClicked);
-            _settingsButton.onClick.AddListener(OnSettingsClicked);
+            _openTaskScreen.EditClicked += EnableScreen;
         }
 
         private void OnDisable()
         {
-            _addTaskButton.onClick.RemoveListener(AddNewTask);
+            _saveTask.onClick.RemoveListener(SaveTask);
+            
+            _deleteConfirmScreen.YesClicked -= OnConfirmDeleteClicked;
 
             _low.onClick.RemoveListener(OnLowPriorityClicked);
             _medium.onClick.RemoveListener(OnMediumPriorityClicked);
             _high.onClick.RemoveListener(OnHighPriorityClicked);
+            
+            _deleteButton.onClick.RemoveListener(OnDeleteButtonClicked);
+            
+            _openTaskScreen.EditClicked -= EnableScreen;
 
             _nameInput.onValueChanged.RemoveListener((arg0) => ToggleAddTaskButton());
             _categoryInput.onValueChanged.RemoveListener((arg0) => ToggleAddTaskButton());
-
-            _taskListButton.onClick.RemoveListener(OnTaskListClicked);
-            _settingsButton.onClick.RemoveListener(OnSettingsClicked);
         }
 
         private void Start()
         {
             _screenVisabilityHandler.DisableScreen();
         }
-
-        public void EnableScreen()
+        
+        public void EnableScreen(TaskPlane taskPlane)
         {
             _screenVisabilityHandler.EnableScreen();
             ResetUIElements();
+            _currentPlane = taskPlane;
+            
+            var taskData = taskPlane.TaskData;
+
+            _nameInput.text = taskData.Name;
+            _dateTimeSelector.SetData(taskData.Date);
+            _categoryInput.text = taskData.Category;
+            _commentInput.text = taskData.Comment ?? string.Empty;
+            
+            _currentType = taskData.PriorityType;
+            UpdateTypeButtons();
+
             ToggleAddTaskButton();
         }
-
+        
         private void OnLowPriorityClicked() => OnPriorityButtonClicked(_low);
         private void OnMediumPriorityClicked() => OnPriorityButtonClicked(_medium);
         private void OnHighPriorityClicked() => OnPriorityButtonClicked(_high);
@@ -134,31 +155,31 @@ namespace AddTask
 
         private void ToggleAddTaskButton()
         {
-            _addTaskButton.interactable = 
+            _saveTask.interactable = 
                 !string.IsNullOrWhiteSpace(_nameInput.text) && 
                 !string.IsNullOrWhiteSpace(_categoryInput.text);
         }
 
-        private void AddNewTask()
+        private void SaveTask()
         {
             var task = new TaskData(_nameInput.text, _dateTimeSelector.SelectedDate, _categoryInput.text, _currentType)
             {
                 Comment = string.IsNullOrWhiteSpace(_commentInput.text) ? null : _commentInput.text
             };
-            
-            DataAdded?.Invoke(task);
+
+            _currentPlane.UpdateData(task);
             _screenVisabilityHandler.DisableScreen();
+            DataEdited?.Invoke();
         }
 
-        private void OnSettingsClicked()
+        private void OnDeleteButtonClicked()
         {
-            SettingsClicked?.Invoke();
-            _screenVisabilityHandler.DisableScreen();
+            _deleteConfirmScreen.Enable();
         }
 
-        private void OnTaskListClicked()
+        private void OnConfirmDeleteClicked()
         {
-            TaskListClicked?.Invoke();
+            DataDeleted?.Invoke(_currentPlane);
             _screenVisabilityHandler.DisableScreen();
         }
     }
