@@ -85,7 +85,7 @@ namespace TaskListScreen
             DisplayCurrentDateTime(TaskData.Date);
         }
 
-        public void DisplayCurrentDateTime(DateTime currentDateTime)
+        private void DisplayCurrentDateTime(DateTime currentDateTime)
         {
             _dateText.text = currentDateTime.ToString("dd.MM.yyyy, HH:mm");
         }

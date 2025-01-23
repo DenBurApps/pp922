@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using AddTask;
 using EditTask;
+using Newtonsoft.Json;
 using OpenTask;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +17,8 @@ namespace TaskListScreen
     [RequireComponent(typeof(ScreenVisabilityHandler))]
     public class MainScreen : MonoBehaviour
     {
+        private const string SavePathName = "SaveData";
+
         [SerializeField] private Color _selectedButtonColor;
         [SerializeField] private Color _unselectedButtonColor;
 
@@ -29,15 +34,18 @@ namespace TaskListScreen
         [SerializeField] private AddTaskScreen _addTaskScreen;
         [SerializeField] private OpenTaskScreen _openTaskScreen;
         [SerializeField] private EditTaskScreen _editTaskScreen;
+        [SerializeField] private Settings _settings;
 
         private ScreenVisabilityHandler _screenVisabilityHandler;
         private PriorityType _currentPriority;
         private bool _isShowingCompleteTasks;
+        private string _savePath;
 
         private void Awake()
         {
             Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
             _screenVisabilityHandler = GetComponent<ScreenVisabilityHandler>();
+            _savePath = Path.Combine(Application.persistentDataPath, SavePathName);
         }
 
         private void OnEnable()
@@ -48,16 +56,19 @@ namespace TaskListScreen
             _searchInput.onValueChanged.AddListener(SearchInputed);
 
             _prioritySelector.TypeSelected += UpdateType;
-            
+
             _addButton.onClick.AddListener(OpenAddTask);
 
             _addTaskScreen.DataAdded += AddTask;
             _addTaskScreen.TaskListClicked += _screenVisabilityHandler.EnableScreen;
 
-            _openTaskScreen.BackClicked += _screenVisabilityHandler.EnableScreen;
+            _openTaskScreen.BackClicked += UpdateElements;
 
             _editTaskScreen.DataEdited += UpdateElements;
             _editTaskScreen.DataDeleted += DeleteElement;
+            
+            _settingsButton.onClick.AddListener(OnSettingsClicked);
+            _settings.TaskListClicked += _screenVisabilityHandler.EnableScreen;
 
             foreach (var plane in _taskPlanes)
             {
@@ -73,17 +84,20 @@ namespace TaskListScreen
             _searchInput.onValueChanged.RemoveListener(SearchInputed);
 
             _prioritySelector.TypeSelected -= UpdateType;
-            
+
             _addButton.onClick.RemoveListener(OpenAddTask);
 
             _addTaskScreen.DataAdded -= AddTask;
             _addTaskScreen.TaskListClicked -= _screenVisabilityHandler.EnableScreen;
-            
-            _openTaskScreen.BackClicked -= _screenVisabilityHandler.EnableScreen;
-            
+
+            _openTaskScreen.BackClicked -= UpdateElements;
+
             _editTaskScreen.DataEdited -= UpdateElements;
             _editTaskScreen.DataDeleted -= DeleteElement;
             
+            _settingsButton.onClick.RemoveListener(OnSettingsClicked);
+            _settings.TaskListClicked -= _screenVisabilityHandler.EnableScreen;
+
             foreach (var plane in _taskPlanes)
             {
                 plane.Opened -= OnOpenTaskClicked;
@@ -98,20 +112,24 @@ namespace TaskListScreen
             DisableAllPlanes();
             _emptyPlanes.SetActive(true);
             _emptySearch.SetActive(false);
+            LoadData();
         }
 
         private void UpdateElements()
         {
             _screenVisabilityHandler.EnableScreen();
             FilterAndDisplayPlanes();
+            SaveData();
         }
 
         private void DeleteElement(TaskPlane taskPlane)
         {
             _taskPlanes.Find(plane => plane == taskPlane).DeleteData();
             _screenVisabilityHandler.EnableScreen();
+            FilterAndDisplayPlanes();
+            SaveData();
         }
-        
+
         private void UpdateType(PriorityType type)
         {
             _currentPriority = type;
@@ -146,6 +164,12 @@ namespace TaskListScreen
             FilterAndDisplayPlanes();
         }
 
+        private void OnSettingsClicked()
+        {
+            _settings.ShowSettings();
+            _screenVisabilityHandler.DisableScreen();
+        }
+
         private void UpdateButtonColors(Button selectedButton, Button unselectedButton)
         {
             selectedButton.image.color = _selectedButtonColor;
@@ -162,7 +186,7 @@ namespace TaskListScreen
                 FilterAndDisplayPlanes();
                 return;
             }
-            
+
             _emptyPlanes.SetActive(false);
 
             if (_taskPlanes == null || !_taskPlanes.Any())
@@ -187,8 +211,7 @@ namespace TaskListScreen
                 plane.gameObject.SetActive(true);
             }
         }
-
-
+        
         private void FilterAndDisplayPlanes()
         {
             DisableAllPlanes();
@@ -201,7 +224,9 @@ namespace TaskListScreen
 
             var filteredPlanes = _taskPlanes
                 .Where(plane => plane != null && plane.TaskData != null)
-                .Where(plane => plane.TaskData.PriorityType == _currentPriority && plane.TaskData.IsComplete == _isShowingCompleteTasks);
+                .Where(plane =>
+                    plane.TaskData.PriorityType == _currentPriority &&
+                    plane.TaskData.IsComplete == _isShowingCompleteTasks);
 
             if (!filteredPlanes.Any())
             {
@@ -220,15 +245,11 @@ namespace TaskListScreen
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
-            
+
             _screenVisabilityHandler.EnableScreen();
             _taskPlanes.FirstOrDefault(plane => !plane.IsActive && plane.TaskData == null)?.EnablePlane(data);
             FilterAndDisplayPlanes();
-        }
-
-        private void ToggleEmptyList()
-        {
-            _emptyPlanes.SetActive(!_taskPlanes.Any(plane => plane.IsActive));
+            SaveData();
         }
 
         private void OpenAddTask()
@@ -241,6 +262,64 @@ namespace TaskListScreen
         {
             _openTaskScreen.EnableScreen(taskPlane);
             _screenVisabilityHandler.DisableScreen();
+        }
+
+        private void SaveData()
+        {
+            try
+            {
+                var datas = _taskPlanes
+                    .Where(data => data != null && data.TaskData != null)
+                    .Select(data => data.TaskData)
+                    .ToList();
+
+                var datasToSave = new TaskDataWrapper(datas);
+                var json = JsonConvert.SerializeObject(datasToSave, Formatting.Indented);
+
+                File.WriteAllText(_savePath, json);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e.Message);
+            }
+        }
+
+        private void LoadData()
+        {
+            if (!File.Exists(_savePath))
+                return;
+
+            try
+            {
+                var json = File.ReadAllText(_savePath);
+                var datas = JsonConvert.DeserializeObject<TaskDataWrapper>(json);
+
+                if (datas == null || datas.TaskDatas == null || !datas.TaskDatas.Any())
+                    return;
+
+                foreach (var data in datas.TaskDatas)
+                {
+                    _taskPlanes.FirstOrDefault(plane => !plane.IsActive && plane.TaskData == null)?.EnablePlane(data);
+                }
+
+                FilterAndDisplayPlanes();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e.Message);
+                throw;
+            }
+        }
+    }
+
+    [Serializable]
+    public class TaskDataWrapper
+    {
+        public List<TaskData> TaskDatas;
+
+        public TaskDataWrapper(List<TaskData> taskDatas)
+        {
+            TaskDatas = taskDatas;
         }
     }
 }

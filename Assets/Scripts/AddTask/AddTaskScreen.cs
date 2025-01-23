@@ -23,13 +23,13 @@ namespace AddTask
         [SerializeField] private TMP_InputField _commentInput;
         [SerializeField] private Button _addTaskButton;
         [SerializeField] private Button _taskListButton, _settingsButton;
+        [SerializeField] private Settings _settings;
 
         private PriorityType _currentType;
         private ScreenVisabilityHandler _screenVisabilityHandler;
         
         public event Action<TaskData> DataAdded;
         public event Action TaskListClicked;
-        public event Action SettingsClicked;
 
         private void Awake()
         {
@@ -49,6 +49,8 @@ namespace AddTask
 
             _taskListButton.onClick.AddListener(OnTaskListClicked);
             _settingsButton.onClick.AddListener(OnSettingsClicked);
+
+            _settings.AddTaskClicked += EnableScreen;
         }
 
         private void OnDisable()
@@ -64,6 +66,8 @@ namespace AddTask
 
             _taskListButton.onClick.RemoveListener(OnTaskListClicked);
             _settingsButton.onClick.RemoveListener(OnSettingsClicked);
+            
+            _settings.AddTaskClicked -= EnableScreen;
         }
 
         private void Start()
@@ -141,7 +145,9 @@ namespace AddTask
 
         private void AddNewTask()
         {
-            var task = new TaskData(_nameInput.text, _dateTimeSelector.SelectedDate, _categoryInput.text, _currentType)
+            Debug.Log(_dateTimeSelector.Date.ToString("dd.MM.yyyy, HH:mm"));
+            
+            var task = new TaskData(_nameInput.text, _dateTimeSelector.Date, _categoryInput.text, _currentType)
             {
                 Comment = string.IsNullOrWhiteSpace(_commentInput.text) ? null : _commentInput.text
             };
@@ -152,7 +158,7 @@ namespace AddTask
 
         private void OnSettingsClicked()
         {
-            SettingsClicked?.Invoke();
+            _settings.ShowSettings();
             _screenVisabilityHandler.DisableScreen();
         }
 

@@ -24,6 +24,7 @@ namespace AddTask
         public string Day => _day;
         public string Month => _month;
         public DateTime SelectedDate => _selectedDate;
+        public DateTime Date { get; private set; }
 
         private void OnEnable()
         {
@@ -120,6 +121,7 @@ namespace AddTask
             
             DateTime updatedDate = _selectedDate.Date.AddHours(hour).AddMinutes(minute);
             
+            Date = updatedDate;
             _dateText.text = updatedDate.ToString("dd.MM.yyyy, HH:mm");
         }
 
@@ -137,8 +139,6 @@ namespace AddTask
 
         public void SetData(DateTime Date)
         {
-            _dateSelector.Enable();
-            _timeSelector.Enable();
             _selectedDate = Date;
             _dateText.text = _selectedDate.ToString("dd.MM.yyyy, HH:mm");
         }

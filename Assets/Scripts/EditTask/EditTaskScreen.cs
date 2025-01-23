@@ -49,8 +49,8 @@ namespace EditTask
             _medium.onClick.AddListener(OnMediumPriorityClicked);
             _high.onClick.AddListener(OnHighPriorityClicked);
 
-            _nameInput.onValueChanged.AddListener((arg0) => ToggleAddTaskButton());
-            _categoryInput.onValueChanged.AddListener((arg0) => ToggleAddTaskButton());
+            _nameInput.onValueChanged.AddListener((arg0) => ToggleSaveButton());
+            _categoryInput.onValueChanged.AddListener((arg0) => ToggleSaveButton());
             
             _deleteButton.onClick.AddListener(OnDeleteButtonClicked);
 
@@ -71,16 +71,16 @@ namespace EditTask
             
             _openTaskScreen.EditClicked -= EnableScreen;
 
-            _nameInput.onValueChanged.RemoveListener((arg0) => ToggleAddTaskButton());
-            _categoryInput.onValueChanged.RemoveListener((arg0) => ToggleAddTaskButton());
+            _nameInput.onValueChanged.RemoveListener((arg0) => ToggleSaveButton());
+            _categoryInput.onValueChanged.RemoveListener((arg0) => ToggleSaveButton());
         }
 
         private void Start()
         {
             _screenVisabilityHandler.DisableScreen();
         }
-        
-        public void EnableScreen(TaskPlane taskPlane)
+
+        private void EnableScreen(TaskPlane taskPlane)
         {
             _screenVisabilityHandler.EnableScreen();
             ResetUIElements();
@@ -96,7 +96,7 @@ namespace EditTask
             _currentType = taskData.PriorityType;
             UpdateTypeButtons();
 
-            ToggleAddTaskButton();
+            ToggleSaveButton();
         }
         
         private void OnLowPriorityClicked() => OnPriorityButtonClicked(_low);
@@ -153,7 +153,7 @@ namespace EditTask
             }
         }
 
-        private void ToggleAddTaskButton()
+        private void ToggleSaveButton()
         {
             _saveTask.interactable = 
                 !string.IsNullOrWhiteSpace(_nameInput.text) && 
@@ -162,12 +162,15 @@ namespace EditTask
 
         private void SaveTask()
         {
-            var task = new TaskData(_nameInput.text, _dateTimeSelector.SelectedDate, _categoryInput.text, _currentType)
+            var task = new TaskData(_nameInput.text, _dateTimeSelector.Date, _categoryInput.text, _currentType)
             {
                 Comment = string.IsNullOrWhiteSpace(_commentInput.text) ? null : _commentInput.text
             };
 
+            bool completeStatus = _currentPlane.TaskData.IsComplete;
+            
             _currentPlane.UpdateData(task);
+            _currentPlane.TaskData.IsComplete = completeStatus;
             _screenVisabilityHandler.DisableScreen();
             DataEdited?.Invoke();
         }
