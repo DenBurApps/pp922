@@ -8,7 +8,6 @@ using EditTask;
 using Newtonsoft.Json;
 using OpenTask;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -35,6 +34,7 @@ namespace TaskListScreen
         [SerializeField] private OpenTaskScreen _openTaskScreen;
         [SerializeField] private EditTaskScreen _editTaskScreen;
         [SerializeField] private Settings _settings;
+        [SerializeField] private Onboarding _onboarding;
 
         private ScreenVisabilityHandler _screenVisabilityHandler;
         private PriorityType _currentPriority;
@@ -60,15 +60,17 @@ namespace TaskListScreen
             _addButton.onClick.AddListener(OpenAddTask);
 
             _addTaskScreen.DataAdded += AddTask;
-            _addTaskScreen.TaskListClicked += _screenVisabilityHandler.EnableScreen;
+            _addTaskScreen.TaskListClicked += OnTaskListClicked;
 
             _openTaskScreen.BackClicked += UpdateElements;
 
             _editTaskScreen.DataEdited += UpdateElements;
             _editTaskScreen.DataDeleted += DeleteElement;
-            
+
             _settingsButton.onClick.AddListener(OnSettingsClicked);
-            _settings.TaskListClicked += _screenVisabilityHandler.EnableScreen;
+            _settings.TaskListClicked += OnTaskListClicked;
+
+            _onboarding.Shown += OnOnboardingShown;
 
             foreach (var plane in _taskPlanes)
             {
@@ -88,15 +90,17 @@ namespace TaskListScreen
             _addButton.onClick.RemoveListener(OpenAddTask);
 
             _addTaskScreen.DataAdded -= AddTask;
-            _addTaskScreen.TaskListClicked -= _screenVisabilityHandler.EnableScreen;
+            _addTaskScreen.TaskListClicked -= OnTaskListClicked;
 
             _openTaskScreen.BackClicked -= UpdateElements;
 
             _editTaskScreen.DataEdited -= UpdateElements;
             _editTaskScreen.DataDeleted -= DeleteElement;
-            
+
             _settingsButton.onClick.RemoveListener(OnSettingsClicked);
-            _settings.TaskListClicked -= _screenVisabilityHandler.EnableScreen;
+            _settings.TaskListClicked -= OnTaskListClicked;
+
+            _onboarding.Shown -= OnOnboardingShown;
 
             foreach (var plane in _taskPlanes)
             {
@@ -104,15 +108,26 @@ namespace TaskListScreen
             }
         }
 
-        private void Start()
+        private void OnOnboardingShown()
         {
             _screenVisabilityHandler.EnableScreen();
+        }
+
+        private void OnTaskListClicked()
+        {
+            _screenVisabilityHandler.EnableScreen();
+        }
+
+        private void Start()
+        {
             _isShowingCompleteTasks = false;
             _currentPriority = PriorityType.Low;
             DisableAllPlanes();
             _emptyPlanes.SetActive(true);
             _emptySearch.SetActive(false);
             LoadData();
+
+            UpdateButtonColors(_inProcessButton, _completeButton);
         }
 
         private void UpdateElements()
@@ -166,8 +181,8 @@ namespace TaskListScreen
 
         private void OnSettingsClicked()
         {
-            _settings.ShowSettings();
             _screenVisabilityHandler.DisableScreen();
+            _settings.ShowSettings();
         }
 
         private void UpdateButtonColors(Button selectedButton, Button unselectedButton)
@@ -211,7 +226,7 @@ namespace TaskListScreen
                 plane.gameObject.SetActive(true);
             }
         }
-        
+
         private void FilterAndDisplayPlanes()
         {
             DisableAllPlanes();

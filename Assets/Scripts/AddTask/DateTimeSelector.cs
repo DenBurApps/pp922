@@ -19,11 +19,7 @@ namespace AddTask
         private string _minute;
 
         private DateTime _selectedDate;
-
-        public string Year => _year;
-        public string Day => _day;
-        public string Month => _month;
-        public DateTime SelectedDate => _selectedDate;
+        
         public DateTime Date { get; private set; }
 
         private void OnEnable()
@@ -91,36 +87,26 @@ namespace AddTask
         {
             if (string.IsNullOrEmpty(_year) || string.IsNullOrEmpty(_month) || string.IsNullOrEmpty(_day))
             {
-                Debug.LogWarning("Date components are missing. Cannot set date.");
                 return;
             }
 
-            try
-            {
-                string dateString = $"{_year}-{_month}-{_day}";
-                _selectedDate = DateTime.Parse(dateString);
-                UpdateDateText();
-            }
-            catch (FormatException ex)
-            {
-                Debug.LogError($"Invalid date format: {_day}-{_month}-{_year}. Exception: {ex.Message}");
-                _dateText.text = "Invalid Date";
-            }
+            string dateString = $"{_year}-{_month}-{_day}";
+            _selectedDate = DateTime.Parse(dateString);
+            UpdateDateText();
         }
 
         private void UpdateDateText()
         {
             if (_selectedDate == default)
             {
-                Debug.LogWarning("Selected date is not set. Cannot update date text.");
                 return;
             }
-            
+
             int hour = string.IsNullOrEmpty(_hour) ? _selectedDate.Hour : int.Parse(_hour);
             int minute = string.IsNullOrEmpty(_minute) ? _selectedDate.Minute : int.Parse(_minute);
-            
+
             DateTime updatedDate = _selectedDate.Date.AddHours(hour).AddMinutes(minute);
-            
+
             Date = updatedDate;
             _dateText.text = updatedDate.ToString("dd.MM.yyyy, HH:mm");
         }

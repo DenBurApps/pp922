@@ -1650,10 +1650,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 503672437}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 1958222275}
+        m_TargetAssemblyTypeName: Settings, Assembly-CSharp
+        m_MethodName: BackToSettings
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -3461,10 +3461,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 656727244}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 1958222275}
+        m_TargetAssemblyTypeName: Settings, Assembly-CSharp
+        m_MethodName: BackToSettings
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -14019,7 +14019,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -33719,10 +33719,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 656727244}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 1958222275}
+        m_TargetAssemblyTypeName: Settings, Assembly-CSharp
+        m_MethodName: ShowPrivacyPolicy
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -44936,10 +44936,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 503672437}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 1958222275}
+        m_TargetAssemblyTypeName: Settings, Assembly-CSharp
+        m_MethodName: ShowVersion
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -51755,6 +51755,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b111809ca3e5a340961528b254e7a0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _animationDuration: 0.3
+  _showEase: 6
+  _hideEase: 5
 --- !u!225 &1240331624
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -55662,6 +55665,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b111809ca3e5a340961528b254e7a0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _animationDuration: 0.3
+  _showEase: 6
+  _hideEase: 5
 --- !u!225 &1341804874
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -62105,10 +62111,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1569268346}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 1958222275}
+        m_TargetAssemblyTypeName: Settings, Assembly-CSharp
+        m_MethodName: BackToSettings
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -66239,10 +66245,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 112394330}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 1958222275}
+        m_TargetAssemblyTypeName: Settings, Assembly-CSharp
+        m_MethodName: BackToSettings
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -68044,6 +68050,8 @@ MonoBehaviour:
   _steps:
   - {fileID: 568577692}
   - {fileID: 689757378}
+  _fadeInDuration: 0.5
+  _fadeOutDuration: 0.3
 --- !u!4 &1666511426
 Transform:
   m_ObjectHideFlags: 0
@@ -70937,6 +70945,7 @@ MonoBehaviour:
   _openTaskScreen: {fileID: 2094918684}
   _editTaskScreen: {fileID: 1341804879}
   _settings: {fileID: 1958222275}
+  _onboarding: {fileID: 1666511425}
 --- !u!114 &1711286663
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -70949,6 +70958,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b111809ca3e5a340961528b254e7a0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _animationDuration: 0.3
+  _showEase: 6
+  _hideEase: 5
 --- !u!225 &1711286664
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -70957,9 +70969,9 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1711286657}
   m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_Alpha: 0
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!1 &1722841762
 GameObject:
@@ -72891,10 +72903,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 112394330}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 1958222275}
+        m_TargetAssemblyTypeName: Settings, Assembly-CSharp
+        m_MethodName: ShowContact
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -81006,6 +81018,9 @@ MonoBehaviour:
   _versionText: {fileID: 1555944345}
   _addTaskButton: {fileID: 1056410869}
   _taskListButton: {fileID: 286346261}
+  _fadeDuration: 0.3
+  _fadeInEase: 6
+  _fadeOutEase: 5
 --- !u!4 &1958222276
 Transform:
   m_ObjectHideFlags: 0
@@ -86836,6 +86851,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b111809ca3e5a340961528b254e7a0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _animationDuration: 0.3
+  _showEase: 6
+  _hideEase: 5
 --- !u!225 &2067139466
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -86959,6 +86977,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b111809ca3e5a340961528b254e7a0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _animationDuration: 0.3
+  _showEase: 6
+  _hideEase: 5
 --- !u!225 &2068533760
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -87943,6 +87964,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b111809ca3e5a340961528b254e7a0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _animationDuration: 0.3
+  _showEase: 6
+  _hideEase: 5
 --- !u!225 &2094918679
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -88061,6 +88085,9 @@ MonoBehaviour:
   _markButton: {fileID: 206705568}
   _editButton: {fileID: 9086531028822679490}
   _backButton: {fileID: 484732279}
+  _animationDuration: 0.3
+  _showEase: 27
+  _hideEase: 26
 --- !u!1 &2098206573
 GameObject:
   m_ObjectHideFlags: 0
@@ -89944,10 +89971,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1569268346}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 1958222275}
+        m_TargetAssemblyTypeName: Settings, Assembly-CSharp
+        m_MethodName: ShowTerms
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine

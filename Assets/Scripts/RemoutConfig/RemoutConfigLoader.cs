@@ -102,10 +102,11 @@ namespace RemoutConfig
             //Место для сохранения ссылки (Сохранять в плеер префс нельзя поскольку сброс данных приложения обнуляет эту информацию)
 
             //var reg = SaveSystem.LoadData<RegistrationSaveData>();
+            LinkSaver.Link = _allConfigData.link;
+            LinkSaver.SaveLink(_allConfigData.link);
             //reg.Link = _allConfigData.link;
             //SaveSystem.SaveData(reg);
             LoadScene();
-
         }
 
         private void LoadScene()
